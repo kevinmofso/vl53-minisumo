@@ -1,30 +1,30 @@
- void init_vl(){
-  Serial.begin(115200);
-  delay(2000); 
-  Wire.begin(SDA_PIN, SCL_PIN);
-  Wire.setClock(400000);
-  pcf.begin();
-  for(int i=0; i<4; i++) {
-    pcf.pinMode(i, OUTPUT);
-    pcf.digitalWrite(i, LOW);
-  }
-  delay(10);
-  for(int i=0; i<4; i++) {
-    pcf.digitalWrite(i, HIGH);
-    delay(10);
-    
-    sensors[i]->setTimeout(500);
-    if (!sensors[i]->init()) {
-      Serial.print("Fallo en sensor "); Serial.println(i+1);
-    } else {
-      // Cambiar dirección (0x30, 0x31, 0x32, 0x33)
-      sensors[i]->setAddress(0x30 + i);
-      
-      // timout a 20ms
-      sensors[i]->setMeasurementTimingBudget(20000);
-      
-      // Iniciar modo continuo
-      sensors[i]->startContinuous();
-      Serial.print("Sensor "); Serial.print(i+1); Serial.println(" configurado");
-    }
-  }}
+#ifndef vl_H
+#define vl_H
+
+#include <Arduino.h>
+#include <VL53L0X.h>
+#include <PCF8574.h>
+#define NUM_SENSORS 4 
+
+// Definiciones de Pines I2C (si las mantienes en el .ino, puedes dejarlas aquí)
+#define SDA_PIN 8
+#define SCL_PIN 9
+// Array de instancias de los sensores. 
+extern VL53L0X sensor_instances[NUM_SENSORS];
+
+// Array de punteros a los sensores
+extern VL53L0X* sensors[NUM_SENSORS]; 
+
+// Instancia del expansor I2C PCF8574
+extern PCF8574 pcf;
+
+
+
+void inicializar_array_de_punteros();
+
+
+void init_vl();
+
+void leerTodosLosSensores(uint16_t distancias[NUM_SENSORS]);
+
+#endif // vl_H
